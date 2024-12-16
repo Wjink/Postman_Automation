@@ -14,6 +14,7 @@
     "body-parser": "^1.20.3",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "newman": "^6.2.1",
     "nodemon": "^3.1.7",
     "pg": "^8.13.1"
   }
