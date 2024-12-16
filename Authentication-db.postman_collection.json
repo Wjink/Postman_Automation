@@ -1,0 +1,345 @@
+{
+	"info": {
+		"_postman_id": "418d6519-bb3b-45e6-ad8a-2c3cefbd1ee7",
+		"name": "Authentication-db",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39912218"
+	},
+	"item": [
+		{
+			"name": "Registration",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let baseUsername = \"User\";\r",
+							"let baseEmail = \"u.ser\";\r",
+							"let titleNumber = Math.floor(Math.random() * 10)\r",
+							"let baseTitle = \" \"\r",
+							"if(titleNumber > 5){\r",
+							"    baseTitle = \"Mr\";\r",
+							"}\r",
+							"else {\r",
+							"    baseTitle = \"Mrs\";\r",
+							"}\r",
+							"let basePassword = \"Secret_Word_\";\r",
+							"let uniqueCode = Math.floor(Math.random() * 100000);\r",
+							"\r",
+							"let uniqueUsername = `${baseUsername}_${uniqueCode}`;\r",
+							"let uniqueEmail = `${baseEmail}_${uniqueCode}@gmail.com`;\r",
+							"let uniquePassword = `${basePassword}${uniqueCode}`;\r",
+							"\r",
+							"pm.collectionVariables.set(\"surname\", uniqueUsername)\r",
+							"pm.collectionVariables.set(\"title\", baseTitle)\r",
+							"pm.collectionVariables.set(\"email\", uniqueEmail)\r",
+							"pm.collectionVariables.set(\"password\", uniquePassword)\r",
+							"\r",
+							"\r",
+							"let requestBody = {\r",
+							"    \"surname\": uniqueUsername,\r",
+							"    \"email\": uniqueEmail,\r",
+							"    \"title\": baseTitle,\r",
+							"    \"password\": uniquePassword\r",
+							"};\r",
+							"\r",
+							"\r",
+							"pm.request.body.raw = JSON.stringify(requestBody);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Id was added to collection variables\", function(){\r",
+							"    var jsonData = pm.response.json();\r",
+							"    let userID = jsonData.user.id;\r",
+							"    pm.collectionVariables.set(\"id\", userID);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Email has a valid format\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(responseData.user.email).to.be.a('string').and.to.match(/^.+@.+\\..+$/);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User registered successfully\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"    const responseData = pm.response.json();\r",
+							"    const regId = pm.collectionVariables.get(\"id\");\r",
+							"    const regEmail = pm.collectionVariables.get(\"email\");\r",
+							"    const regSurname = pm.collectionVariables.get(\"surname\");\r",
+							"    const regTitle = pm.collectionVariables.get(\"title\");\r",
+							"\r",
+							"    pm.expect(responseData.message).to.be.eq(\"User registered successfully\");\r",
+							"    pm.expect(responseData.user.id).to.be.eq(regId);\r",
+							"    pm.expect(responseData.user.email).to.be.eq(regEmail);\r",
+							"    pm.expect(responseData.user.surname).to.be.eq(regSurname);\r",
+							"    pm.expect(responseData.user.title).to.be.eq(regTitle);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Password was hashed succesfully\", function(){\r",
+							"    const responseData = pm.response.json();\r",
+							"    const regPassword = pm.collectionVariables.get(\"password\");\r",
+							"\r",
+							"    pm.expect(responseData.user.password).to.not.be.eq(regPassword);\r",
+							"    pm.expect(responseData.user.password).to.be.a('string').and.to.have.lengthOf.at.least(50, \"Password should not be empty\"); \r",
+							"});\r",
+							"\r",
+							"pm.test(\"Created_at matches updated_at time\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    let userUpdatedAt = responseData.user.updated_at;\r",
+							"    \r",
+							"    pm.expect(responseData.user.created_at).to.be.eq(userUpdatedAt);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Token was added to Collection Variables\", function(){\r",
+							"    var jsonData = pm.response.json();\r",
+							"    let userToken = jsonData.token;\r",
+							"    pm.collectionVariables.set(\"token\", userToken);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Login succesfull\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"    pm.expect(responseData.message).to.be.eq(\"Login successful\");\r",
+							"    pm.expect(responseData.token).to.be.a('string').and.to.have.lengthOf.at.least(100, \"Token should not be empty\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \r\n    \"surname\": \"{{surname}}\",\r\n    \"email\": \"{{email}}\",\r\n    \"title\": \"{{title}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let baseEmail = \"updated_u.ser\";\r",
+							"let uniqueCode = Math.floor(Math.random() * 100000);\r",
+							"\r",
+							"let updatedEmail = `${baseEmail}_${uniqueCode}@gmail.com`;\r",
+							"\r",
+							"pm.collectionVariables.set(\"email_upd\", updatedEmail)\r",
+							"\r",
+							"let requestBody = {\r",
+							"    \"email\": updatedEmail\r",
+							"};\r",
+							"\r",
+							"pm.request.body.raw = JSON.stringify(requestBody);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User has been updated, email must be different from one saved in variables\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    const responseData = pm.response.json();\r",
+							"    const regEmail = pm.collectionVariables.get(\"email\");\r",
+							"\r",
+							"    pm.expect(responseData.user.email).to.not.be.eq(regEmail);\r",
+							"    pm.expect(responseData.message).to.be.eq(\"User updated successfully\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Email should not match the one saved in variables\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    const regEmail = pm.collectionVariables.get(\"email\");\r",
+							"\r",
+							"    pm.expect(responseData.user.email).to.not.be.eq(regEmail);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Create_at should not match Updated_at\", function () {\r",
+							"    const responseData = pm.response.json();\r",
+							"    let userUpdatedAt = responseData.user.updated_at;\r",
+							"\r",
+							"    pm.expect(responseData.user.created_at).to.not.be.eq(userUpdatedAt);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"    \r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/users/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"users",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "title",
+			"value": ""
+		},
+		{
+			"key": "email",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "surname",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "email_upd",
+			"value": ""
+		},
+		{
+			"key": "id",
+			"value": ""
+		}
+	]
+}
