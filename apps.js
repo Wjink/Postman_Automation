@@ -16,7 +16,7 @@ const pool = new Pool({
   host: 'localhost',
   database: 'authentication-db',
   password: 'artur123',
-  port: 5432, // Default PostgreSQL port
+  port: 5432,
 });
 
 // Create users table if it doesn't exist
